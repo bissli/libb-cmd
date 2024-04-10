@@ -6,27 +6,33 @@ import os
 import sys
 from optparse import OptionParser
 
-from log import configure_logging, log_exception
-
 from libb import replacekey
+from log import configure_logging
 
 logger = logging.getLogger(__name__)
 
 __all__ = ['parse_args']
 
 
-def parse_args(options, usage=None):
+def patch_environment(opts, config):
+    if config is None:
+        logger.error('Parser missing config module parameter')
+        return
+    with replacekey(os.environ, opts.environment, '1'):
+        importlib.reload(config)
+    try:
+        assert opts.environment == config.ENVIRONMENT
+        logger.info(f'Patched config.ENVIRONMENT = {opts.environment}')
+    except AssertionError:
+        logger.error(f'Failed to patch config.ENVIRONMENT = {opts.environment}')
+
+
+def parse_args(options, usage=None, config=None):
     parser = create_parser(options, usage)
     opts, args = parser.parse_args()
     configure_logging(opts.logsetup)
     if opts.environment is not None:
-        with replacekey(os.environ, opts.environment, '1'):
-            importlib.reload(config)
-        try:
-            assert opts.environment == config.ENVIRONMENT
-            logger.info(f'Patched config.ENVIRONMENT = {opts.environment}')
-        except AssertionError:
-            logger.error(f'Failed to patch config.ENVIRONMENT = {opts.environment}')
+        patch_environment(opts, config)
     logger.info(' '.join(sys.argv))
     return opts, args, parser
 
@@ -55,21 +61,3 @@ def create_parser(options, usage=None):
     parser.add_option('-S', '--logsetup', dest='logsetup', default='job', help='set logging setup type')
     parser.add_option('-V', '--loglevel', dest='loglevel', default=None, help='set logging level')
     return parser
-
-
-if __name__ == '__main__':
-    logger = logging.getLogger('cmd')
-
-    @log_exception(logger)
-    def main():
-        opts, args, parser = cmdline.parse_args((
-            ('-d', '--date', 'Date for calculation', 'P'),
-            ('-f', '--flag', 'Flag-only option with default', False, 'store_true'),
-            ('-a', '--address', 'Email address list', 'bissli'),
-        ), 'usage: %prog [options]')
-        if args:
-            parser.error('Unknown arguments: ' + ', '.join(args))
-
-        logger.info(f'Example: date={opts.date},flag={opts.flag},address={opts.address}')
-
-    main()

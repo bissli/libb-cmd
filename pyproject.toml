@@ -16,6 +16,7 @@ asserts = { version = "*", optional = true }
 pytest = { version = "*", optional = true }
 pytest-mock = { version = "*", optional = true }
 pytest-runner = { version = "*", optional = true }
+wrapt = { version = "*", optional = true }
 pdbpp = { git = "https://github.com/pdbpp/pdbpp.git", rev = "master", optional = true }
 
 [tool.poetry.extras]
@@ -26,6 +27,7 @@ test = [
   "pytest",
   "pytest-mock",
   "pytest-runner",
+  "wrapt",
 ]
 
 [build-system]

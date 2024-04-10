@@ -1,7 +1,18 @@
 import sys
 
 import pytest
+import wrapt
 from asserts import assert_equal, assert_raises
+
+
+# one example of how to patch in config
+@wrapt.patch_function_wrapper('cmdline', 'parse_args')
+def patch_mail_send_mail(wrapped, instance, args, kwargs):
+    """Patch parse args with our config"""
+    import config
+    kwargs['config'] = config
+    return wrapped(*args, **kwargs)
+
 
 import cmdline
 
