@@ -30,7 +30,7 @@ def patch_environment(opts, config):
 def parse_args(options, usage=None, config=None):
     parser = create_parser(options, usage)
     opts, args = parser.parse_args()
-    configure_logging(opts.logsetup)
+    configure_logging(app=opts.logapp, setup=opts.logsetup, level=opts.loglevel)
     if opts.environment is not None:
         patch_environment(opts, config)
     logger.info(' '.join(sys.argv))
