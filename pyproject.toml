@@ -9,7 +9,7 @@ packages = [{ include = "cmdline", from = "src" }]
 [tool.poetry.dependencies]
 python = "~3.11"
 
-libb-log = { git = "https://github.com/bissli/libb-log.git", rev = "master" }
+libb-log = { git = "https://github.com/bissli/libb-log" }
 
 # == test
 asserts = { version = "*", optional = true }
@@ -17,7 +17,7 @@ pytest = { version = "*", optional = true }
 pytest-mock = { version = "*", optional = true }
 pytest-runner = { version = "*", optional = true }
 wrapt = { version = "*", optional = true }
-pdbpp = { git = "https://github.com/pdbpp/pdbpp.git", rev = "master", optional = true }
+pdbpp = { git = "https://github.com/pdbpp/pdbpp", optional = true }
 
 [tool.poetry.extras]
 test = [
