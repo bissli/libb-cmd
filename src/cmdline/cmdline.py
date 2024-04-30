@@ -6,7 +6,7 @@ import os
 import sys
 from optparse import OptionParser
 
-from libb import replacekey
+from libb import replacekey, scriptname
 from log import configure_logging
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,6 @@ def parse_args(options, usage=None, config=None):
 def create_parser(options, usage=None):
     """We parse each option: short, long, help, [default, [action, [dest]]]
     """
-    from libb import scriptname
     parser = OptionParser(usage)
     for opt in options:
         opt = list(opt)
