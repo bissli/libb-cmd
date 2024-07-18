@@ -7,9 +7,9 @@ readme = "README.md"
 packages = [{ include = "cmdline", from = "src" }]
 
 [tool.poetry.dependencies]
-python = "~3.11"
+python = "^3.9"
 
-libb-log = { git = "https://github.com/bissli/libb-log", rev = "master" }
+libb-log = { git = "https://github.com/bissli/libb-log" }
 
 # == test
 asserts = { version = "*", optional = true }
