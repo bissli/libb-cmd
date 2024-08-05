@@ -17,13 +17,11 @@ pytest = { version = "*", optional = true }
 pytest-mock = { version = "*", optional = true }
 pytest-runner = { version = "*", optional = true }
 wrapt = { version = "*", optional = true }
-pdbpp = { git = "https://github.com/pdbpp/pdbpp", optional = true, rev = "master" }
 
 [tool.poetry.extras]
 test = [
   "asserts",
   "docker",
-  "pdbpp",
   "pytest",
   "pytest-mock",
   "pytest-runner",
