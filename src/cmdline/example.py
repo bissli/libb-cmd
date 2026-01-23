@@ -9,7 +9,7 @@ logger = logging.getLogger('cmd')
 @log_exception(logger)
 def main():
     opts, args, parser = cmdline.parse_args((
-        ('-d', '--date', 'Date for calculation', 'P'),
+        ('-d', '--date', 'Date for calculation', 'P', cmdline.DateAction),
         ('-f', '--flag', 'Flag-only option with default', False, 'store_true'),
         ('-a', '--address', 'Email address list', 'bissli'),
     ), 'usage: %prog [options]')

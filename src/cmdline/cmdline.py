@@ -8,10 +8,26 @@ import sys
 
 from libb import replacekey, scriptname
 from log import configure_logging
+from opendate import Date
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['parse_args']
+__all__ = ['parse_args', 'DateAction']
+
+
+class DateAction(argparse.Action):
+    """Custom argparse action that parses date strings using opendate.
+    """
+
+    def __init__(self, option_strings, dest, nargs=None, **kwargs):
+        if nargs is not None:
+            raise ValueError('nargs not allowed')
+        super().__init__(option_strings, dest, **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        if isinstance(values, str):
+            values = Date.parse(values)
+        setattr(namespace, self.dest, values)
 
 
 def patch_environment(opts, config):
@@ -52,6 +68,8 @@ def create_parser(options, usage=None):
             action = opt.pop(0)
         if opt:
             dest = opt.pop(0)
+        if action is DateAction and isinstance(default, str):
+            default = Date.parse(default)
         if shortopt and longopt:
             parser.add_argument(shortopt, longopt, help=helptxt, action=action, default=default, dest=dest)
         else:

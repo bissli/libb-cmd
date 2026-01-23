@@ -10,20 +10,16 @@ packages = [{ include = "cmdline", from = "src" }]
 python = "^3.9"
 
 libb-log = { git = "https://github.com/bissli/libb-log" }
+opendate = "^0.1.39"
 
 # == test
-asserts = { version = "*", optional = true }
 pytest = { version = "*", optional = true }
-pytest-mock = { version = "*", optional = true }
 pytest-runner = { version = "*", optional = true }
 wrapt = { version = "*", optional = true }
 
 [tool.poetry.extras]
 test = [
-  "asserts",
-  "docker",
   "pytest",
-  "pytest-mock",
   "pytest-runner",
   "wrapt",
 ]

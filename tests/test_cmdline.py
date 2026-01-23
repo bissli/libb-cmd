@@ -1,16 +1,19 @@
+import argparse
 import os
 import site
 import sys
 
 import pytest
 import wrapt
-from asserts import assert_equal, assert_raises
+from opendate import Date
 
 
-# one example of how to patch in config
 @wrapt.patch_function_wrapper('cmdline', 'parse_args')
 def patch_mail_send_mail(wrapped, instance, args, kwargs):
-    """Patch parse args with our config"""
+    """Patch parse args with our config
+
+    **One example of how to patch-in config**
+    """
     HERE = os.path.dirname(os.path.abspath(__file__))
     site.addsitedir(HERE)
     import config
@@ -24,11 +27,12 @@ import cmdline
 def test_default_options():
     sys.argv = ['test_cmdline.py']
     opts, args, parser = cmdline.parse_args([], 'usage: foo')
-    assert_equal(0, len(args))
-    assert_equal(None, opts.environment)
-    assert_equal(None, opts.loglevel)
-    assert_equal('job', opts.logsetup)
-    assert_raises(AttributeError, lambda: opts.badarg)
+    assert len(args) == 0
+    assert opts.environment is None
+    assert opts.loglevel is None
+    assert opts.logsetup == 'job'
+    with pytest.raises(AttributeError):
+        opts.badarg
 
     sys.argv = ['test_cmdline.py',
                 '--environment', 'dev',
@@ -37,19 +41,16 @@ def test_default_options():
                 'foo',
                 'bar']
     opts, args, parser = cmdline.parse_args([], 'usage: foo')
-    assert_equal(2, len(args))
-    assert_equal('foo', args[0])
-    assert_equal('bar', args[1])
-    assert_equal('dev', opts.environment)
-    assert_equal('info', opts.loglevel)
-    assert_equal('cmd', opts.logsetup)
+    assert len(args) == 2
+    assert args[0] == 'foo'
+    assert args[1] == 'bar'
+    assert opts.environment == 'dev'
+    assert opts.loglevel == 'info'
+    assert opts.logsetup == 'cmd'
 
 
 def test_custom_options():
-    """
-    default
-    action
-    destination
+    """Test default, action, and destination options.
     """
     sys.argv = ['test_cmdline.py',
                 '-b',
@@ -67,14 +68,71 @@ def test_custom_options():
             ('-s', None, 'Only a short option'),
             (None, '--long', 'Only a long option'),
             ))
-    assert_equal(2, len(args))
-    assert_equal('foo', args[0])
-    assert_equal('bar', args[1])
-    assert_equal(True, opts.boolean)
-    assert_equal(False, opts.default)
-    assert_equal('10', opts.value)
-    assert_equal('short', opts.s)
-    assert_equal('long', opts.long)
+    assert len(args) == 2
+    assert args[0] == 'foo'
+    assert args[1] == 'bar'
+    assert opts.boolean is True
+    assert opts.default is False
+    assert opts.value == '10'
+    assert opts.s == 'short'
+    assert opts.long == 'long'
+
+
+def test_option_custom_boolean():
+    """Test custom boolean option with store_true action.
+    """
+    sys.argv = ['test_cmdline.py', '-b']
+    args = [('-b', '--boolean', 'A boolean option', False, 'store_true')]
+    opts, args, parser = cmdline.parse_args(args)
+    assert len(args) == 0
+    assert opts.boolean is True
+
+
+class FooAction(argparse.Action):
+    def __init__(self, option_strings, dest, nargs=None, **kwargs):
+        if nargs is not None:
+            raise ValueError('nargs not allowed')
+        super().__init__(option_strings, dest, **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        print(f'{namespace!r} {values!r} {option_string!r}')
+        setattr(namespace, self.dest, values)
+
+
+def test_option_custom_action():
+    """Test custom argparse action.
+    """
+    sys.argv = ['test_cmdline.py', '-a', 'value']
+    args = [('-a', '--action', 'A custom action', None, FooAction)]
+    opts, args, parser = cmdline.parse_args(args)
+    assert len(args) == 0
+    assert opts.action == 'value'
+
+
+def test_date_action():
+    """Verify DateAction parses date strings using opendate.
+    """
+    sys.argv = ['test_cmdline.py', '-d', '2024-01-15']
+    args = [('-d', '--date', 'A date option', None, cmdline.DateAction)]
+    opts, args, parser = cmdline.parse_args(args)
+    assert len(args) == 0
+    assert isinstance(opts.date, Date)
+    assert opts.date.year == 2024
+    assert opts.date.month == 1
+    assert opts.date.day == 15
+
+
+def test_date_action_default():
+    """Verify DateAction handles default string values.
+    """
+    sys.argv = ['test_cmdline.py']
+    args = [('-d', '--date', 'A date option', '2023-12-25', cmdline.DateAction)]
+    opts, args, parser = cmdline.parse_args(args)
+    assert len(args) == 0
+    assert isinstance(opts.date, Date)
+    assert opts.date.year == 2023
+    assert opts.date.month == 12
+    assert opts.date.day == 25
 
 
 if __name__ == '__main__':
