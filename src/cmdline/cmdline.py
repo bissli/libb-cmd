@@ -6,8 +6,8 @@ import logging
 import os
 import sys
 
+import log
 from libb import replacekey, scriptname
-from log import configure_logging
 from opendate import Date
 
 logger = logging.getLogger(__name__)
@@ -46,7 +46,9 @@ def patch_environment(opts, config):
 def parse_args(options, usage=None, config=None):
     parser = create_parser(options, usage)
     opts, args = parser.parse_known_args()
-    configure_logging(app=opts.logapp, setup=opts.logsetup, level=opts.loglevel)
+    log.set_app(opts.logapp)
+    if opts.loglevel:
+        log.set_level(opts.loglevel)
     if opts.environment is not None:
         patch_environment(opts, config)
     logger.info(' '.join(sys.argv))

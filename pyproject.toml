@@ -9,7 +9,7 @@ packages = [{ include = "cmdline", from = "src" }]
 [tool.poetry.dependencies]
 python = "^3.9"
 
-libb-log = { git = "https://github.com/bissli/libb-log" }
+applog = { git = "https://github.com/bissli/applog" }
 opendate = "^0.1.39"
 
 # == test
