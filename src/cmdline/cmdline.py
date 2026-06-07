@@ -6,9 +6,10 @@ import logging
 import os
 import sys
 
+from opendate import Date
+
 import log
 from libb import replacekey, scriptname
-from opendate import Date
 
 logger = logging.getLogger(__name__)
 
