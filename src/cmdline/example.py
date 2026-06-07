@@ -1,12 +1,12 @@
 import logging
 
 import cmdline
-from log import log_exception
+import log
 
 logger = logging.getLogger('cmd')
 
 
-@log_exception(logger)
+@log.job()
 def main():
     opts, args, parser = cmdline.parse_args((
         ('-d', '--date', 'Date for calculation', 'P', cmdline.DateAction),
